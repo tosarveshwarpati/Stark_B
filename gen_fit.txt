@@ -1,0 +1,92 @@
+import numpy as np
+import scipy.signal
+import scipy
+import math
+from scipy.integrate import quad
+import matplotlib.pyplot as plt
+import sys
+import scipy.constants as cst
+wl = np.arange(200,1000,0.1)
+data1 = np.loadtxt("K1NIST.txt")
+a_PF = np.loadtxt("PF.txt")
+mask1 = (data1[:,0]>200) & (data1[:,0]<1000)
+data = data1[mask1]
+#T = 1
+lam = data[:,0]
+aki = data[:,1]
+f_ij = data[:,2]
+ei = data[:,3]
+ej = data[:,4]
+g_i = data[:,5]
+gj = data[:,6]
+gauss_width = 1
+lorentzian_width = 1
+f_inst = 1 
+l_abs = 1
+n_0 = 1
+#T = T_eV / 11600
+T = 16000
+def Z(T):
+	lnZ = sum([a_PF[i]*np.log(T)**i for i in range(1,6)])
+	return np.exp(lnZ)
+for l in lam:
+    ind = lam == l
+    if np.size(lam[ind]) > 1:
+        for dw in range(0, np.size(lam[ind])):
+            def a(gauss_width, lorentzian_width):
+            	return(np.sqrt(np.log(2))*((lorentzian_width)/(gauss_width)))
+            def x(wl, l, gauss_width):
+            	const = 2*np.sqrt(np.log(2))
+            	return np.array(const*(wl - l)/gauss_width)
+            def k0(f_ij, Z, n_0, g_i, ei, T, wl, gauss_width): 
+            	return np.array((2*((cst.e)**2)*np.sqrt(np.pi*np.log(2)*np.exp((-ei[ind][dw])/(cst.k*T)))*n_0*g_i[ind][dw]*f_ij[ind][dw]*wl**2)/(cst.m_e*Z(T)*gauss_width*cst.c**2))
+            def kappa():
+            	func = lambda t: (k0(f_ij[ind][dw], Z, n_0, g_i[ind][dw], ei[ind][dw], T, wl, gauss_width)*a(gauss_width, lorentzian_width)/cst.pi)*((np.exp(-t**2))/(((t-x(wl, l, gauss_width))**2)-a(gauss_width, lorentzian_width)**2))
+            	kappa,_ = quad(func, -np.inf, np.inf)
+            	return kappa
+            def I(wl, l, l_abs, gauss_width, kappa, T, ei, ej, f_inst):
+            	return ((f_inst*8*cst.pi*(cst.c)**2)/l**5)*(math.e**((ei-ej)/(cst.k*T)))*(1-math.e**(-kappa(k0, a, x)*l_abs))
+    else:
+         def a(gauss_width, lorentzian_width):
+             return(np.sqrt(np.log(2))*((lorentzian_width)/(gauss_width)))
+         def x(wl, l, gauss_width):
+             const = 2*np.sqrt(np.log(2))
+             return np.array(const*(wl - l)/gauss_width)
+         def k0(f_ij, Z, n_0, g_i, ei, T, wl, gauss_width): 
+             return np.array((2*((cst.e)**2)*np.sqrt(np.pi*np.log(2)*np.exp((-ei[ind])/(cst.k*T)))*n_0*g_i[ind]*f_ij[ind]*wl**2)/(cst.m_e*Z(T)*gauss_width*cst.c**2))
+         def kappa(f_ij, Z, n_0, g_i, ei, T, wl, gauss_width, lorentzian_width, l):
+             func = lambda t: (k0(f_ij[ind], Z, n_0, g_i[ind], ei[ind], T, wl, gauss_width)*a(gauss_width, lorentzian_width)/cst.pi)*((np.exp(-t**2))/(((t-x(wl, l, gauss_width))**2)-a(gauss_width, lorentzian_width)**2))
+             kappa,_ = quad(func, -np.inf, np.inf)
+             return kappa
+         def I(wl, l, l_abs, gauss_width, kappa, T, ei, ej, f_inst):
+             return ((f_inst*8*cst.pi*(cst.c)**2)/l**5)*(math.e**((ei-ej)/(cst.k*T)))*(1-math.e**(-kappa(k0, a, x)*l_abs))
+         print(kappa(f_ij, Z, n_0, g_i, ei, T, wl, gauss_width, lorentzian_width, l))
+###############################################
+#generation
+###############################################
+    
+    
+###############################################
+#fitting
+###############################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

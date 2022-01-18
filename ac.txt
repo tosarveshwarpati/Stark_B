@@ -1,0 +1,17 @@
+OS: Debian GNU/Linux 11 (bullseye) x86_64 
+Host: 20HES4PF00 ThinkPad T470 
+Kernel: 5.10.0-9-amd64 
+Uptime: 2 hours, 57 mins 
+Packages: 3383 (dpkg), 5 (snap) 
+Shell: bash 5.1.4 
+Resolution: 1920x1080 
+DE: GNOME 3.38.6 
+WM: Mutter 
+WM Theme: Adwaita 
+Theme: Adwaita [GTK2/3] 
+Icons: breeze [GTK2/3] 
+Terminal: gnome-terminal 
+CPU: Intel i7-7600U (4) @ 3.900GHz 
+GPU: Intel HD Graphics 620 
+Memory: 2796MiB / 15656MiB 
+
